@@ -11,6 +11,7 @@ const App = () => {
   const [servoPosition, setServoPosition] = useState(90); // Servo default position
   const [ledStatus, setLedStatus] = useState([false, false, false, false]); // LED statuses
   const [sensorData, setSensorData] = useState({
+    _id: [],
     temperature: [],
     humidity: [],
     brightness: [],
@@ -20,34 +21,35 @@ const App = () => {
   const MAX_DATA_POINTS = 20;
 
   const updateSensorData = (newData) => {
+    if (sensorData._id.length > 0 && newData.length > 0 && sensorData._id[sensorData._id.length - 1] === newData[newData.length - 1]._id) {
+      return null; // No update needed if the last _id matches
+    }
     setSensorData((prevData) => {
+      const newEntries = Array.isArray(newData) ? newData : [newData]; // Ensure we're working with an array
+
       return {
-        temperature: [...prevData.temperature, newData.temperature].slice(-MAX_DATA_POINTS),
-        humidity: [...prevData.humidity, newData.humidity].slice(-MAX_DATA_POINTS),
-        brightness: [...prevData.brightness, newData.brightness].slice(-MAX_DATA_POINTS),
+        _id: [...prevData._id, ...newEntries.map(item => item._id)].slice(-MAX_DATA_POINTS),
+        temperature: [...prevData.temperature, ...newEntries.map(item => item.temperature)].slice(-MAX_DATA_POINTS),
+        humidity: [...prevData.humidity, ...newEntries.map(item => item.humidity)].slice(-MAX_DATA_POINTS),
+        brightness: [...prevData.brightness, ...newEntries.map(item => item.brightness)].slice(-MAX_DATA_POINTS),
       };
     });
   };
 
-  // Example data for graphs (initial values)
-  const temperatureData = sensorData.temperature.length > 0 ? sensorData.temperature : [22, 23, 24, 25, 26, 27];
-  const humidityData = sensorData.humidity.length > 0 ? sensorData.humidity : [40, 42, 43, 45, 50, 55];
-  const brightnessData = sensorData.brightness.length > 0 ? sensorData.brightness : [80, 82, 85, 88, 90, 92];
+  // Use live data if available, otherwise use example data
+  const temperatureData = sensorData.temperature;
+  const humidityData = sensorData.humidity;
+  const brightnessData = sensorData.brightness;
 
-  // Function to handle the slider movement (real-time update)
-  const handleServoChange = (event, value) => {
-    setServoPosition(value);
+  const handleServoChange = (event, newValue) => {
+    setServoPosition(newValue);
   };
 
-  // Function to handle when the user commits to the new position (mouse up)
-  const handleServoChangeCommitted = (event, value) => {
+  const handleServoChangeCommitted = (event, newValue) => {
     if (!isCooldown) {
       setIsCooldown(true);
-      handleServo_endpoint(value);
-
-      setTimeout(() => {
-        setIsCooldown(false);
-      }, 1000); // 1000ms = 1 second
+      handleServo_endpoint(newValue);
+      setTimeout(() => setIsCooldown(false), 1000); // 1000ms = 1 second
     }
   };
 
@@ -58,30 +60,28 @@ const App = () => {
       newStatus[index] = !newStatus[index];
       setLedStatus(newStatus);
       handleLeds_endpoint(newStatus);
-
-      setTimeout(() => {
-        setIsCooldown(false);
-      }, 1000); // 1000ms = 1 second
+      setTimeout(() => setIsCooldown(false), 1000); // 1000ms = 1 second
     }
   };
 
   useEffect(() => {
     const interval = setInterval(() => {
-      handleSensorData_endpoint()
+      handleSensorData_endpoint(sensorData._id.length ? sensorData._id[sensorData._id.length - 1] : -1)
         .then((data) => {
-          if (data) {
-            updateSensorData({
-              temperature: data.temperature || 0,
-              humidity: data.humidity || 0,
-              brightness: data.brightness || 0,
-            });
+          console.log("sensorData :", data);
+          if (data && Array.isArray(data)) {
+            // If data is an array, add all items to sensorData
+            updateSensorData(data);
+          } else if (data) {
+            // If data is a single object, wrap it in an array for consistency
+            updateSensorData([data]);
           }
         })
         .catch((error) => console.error('Error fetching sensor data:', error));
     }, 5000); // 5000ms = 5 seconds
-
+  
     return () => clearInterval(interval);
-  }, []);
+  }, [sensorData]);
 
   const xAxisData = Array.from({ length: temperatureData.length }, (_, index) => index + 1);
 
@@ -129,8 +129,8 @@ const App = () => {
         <h2 className="text-center mb-2">Servo Control</h2>
         <Slider
           value={servoPosition}
-          onChange={handleServoChange} // Tracks position as user slides
-          onChangeCommitted={handleServoChangeCommitted} // Updates when mouse is released
+          onChange={handleServoChange}
+          onChangeCommitted={handleServoChangeCommitted}
           aria-labelledby="servo-slider"
           valueLabelDisplay="auto"
           min={0}
