@@ -4,6 +4,7 @@ export const handleSensorData_endpoint = async (number) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'X-Token-Auth': 'b397e865-c68f-4b30-b065-126547e26abc'
       },
     });
 
