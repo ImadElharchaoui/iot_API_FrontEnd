@@ -5,7 +5,7 @@ export const handleStatus_endpoint = async(ledStatus, ServoStatus) => {
       method: 'PUT', // Use GET method to retrieve data
       headers: {
         'Content-Type': 'application/json', // Ensure server knows we're expecting JSON
-        'X-Token-Auth': 'b397e865-c68f-4b30-b065-126547e26abc'
+        'X-Token-Auth': 'b397e865-c68f-4b30-b065-126547e26abc',
         body: JSON.stringify({ 
           ledStatus:ledStatus,
           servo: ServoStatus }),
