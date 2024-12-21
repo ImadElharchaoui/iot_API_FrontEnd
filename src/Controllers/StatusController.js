@@ -1,11 +1,14 @@
 
-export const handleLeds_endpoint = async(ledStatus) => {
+export const handleStatus_endpoint = async(ledStatus, ServoStatus) => {
+  console.log("status:", ledStatus, ServoStatus)
   try {
     const response = await fetch('http://localhost:5000/api/v1/data', {
-      method: 'POST', // Use GET method to retrieve data
+      method: 'PULL', // Use GET method to retrieve data
       headers: {
         'Content-Type': 'application/json', // Ensure server knows we're expecting JSON
-        body: JSON.stringify({ ledStatus }),
+        body: JSON.stringify({ 
+          ledStatus:ledStatus,
+          servo: ServoStatus }),
       },
     });
 

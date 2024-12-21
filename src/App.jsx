@@ -4,8 +4,8 @@ import Slider from '@mui/material/Slider';
 import Button from '@mui/material/Button';
 
 import { handleSensorData_endpoint } from './Controllers/sensorDataController';
-import { handleLeds_endpoint } from './Controllers/LedController';
-import { handleServo_endpoint } from './Controllers/ServoController';
+import { handleStatus_endpoint } from './Controllers/StatusController';
+
 
 const App = () => {
   const [servoPosition, setServoPosition] = useState(90); // Servo default position
@@ -48,7 +48,7 @@ const App = () => {
   const handleServoChangeCommitted = (event, newValue) => {
     if (!isCooldown) {
       setIsCooldown(true);
-      handleServo_endpoint(newValue);
+      handleStatus_endpoint(ledStatus,newValue);
       setTimeout(() => setIsCooldown(false), 1000); // 1000ms = 1 second
     }
   };
@@ -59,7 +59,7 @@ const App = () => {
       const newStatus = [...ledStatus];
       newStatus[index] = !newStatus[index];
       setLedStatus(newStatus);
-      handleLeds_endpoint(newStatus);
+      handleStatus_endpoint(newStatus, servoPosition);
       setTimeout(() => setIsCooldown(false), 1000); // 1000ms = 1 second
     }
   };
@@ -68,7 +68,7 @@ const App = () => {
     const interval = setInterval(() => {
       handleSensorData_endpoint(sensorData._id.length ? sensorData._id[sensorData._id.length - 1] : -1)
         .then((data) => {
-          console.log("sensorData :", data);
+          
           if (data && Array.isArray(data)) {
             // If data is an array, add all items to sensorData
             updateSensorData(data);

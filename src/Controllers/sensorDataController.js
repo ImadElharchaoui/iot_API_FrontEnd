@@ -14,7 +14,7 @@ export const handleSensorData_endpoint = async (number) => {
 
     // Parse the JSON response
     const jsonData = await response.json();
-    console.log("json", jsonData)
+    
     
     // Assuming 'data' is an array within the JSON response
     if (!Array.isArray(jsonData.data)) {
@@ -24,7 +24,7 @@ export const handleSensorData_endpoint = async (number) => {
       humidity: jsonData.data.humidity || 0,
       brightness: jsonData.data.brightness || 0
     }
-    console.log("data", restructuredData);
+    
     return restructuredData;
 
     }else{
@@ -35,7 +35,7 @@ export const handleSensorData_endpoint = async (number) => {
       humidity: item.humidity || 0,
       brightness: item.brightness || 0
       }));
-      console.log("data", restructuredData);
+      
       return restructuredData;
     }
 
