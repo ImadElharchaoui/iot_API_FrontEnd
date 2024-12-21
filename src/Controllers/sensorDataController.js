@@ -16,21 +16,21 @@ export const handleSensorData_endpoint = async (number) => {
     // Parse the JSON response
     const jsonData = await response.json();
     
-    
+    console.log("json", jsonData)
     // Assuming 'data' is an array within the JSON response
-    if (!Array.isArray(jsonData.data)) {
+    if (!Array.isArray(jsonData)) {
       const restructuredData = {
-      _id: jsonData.data.id || null,
-      temperature: jsonData.data.temperature || 0,
-      humidity: jsonData.data.humidity || 0,
-      brightness: jsonData.data.brightness || 0
+      _id: jsonData.id || null,
+      temperature: jsonData.temperature || 0,
+      humidity: jsonData.humidity || 0,
+      brightness: jsonData.brightness || 0
     }
     
     return restructuredData;
 
     }else{
       // Restructure each item in the array
-      const restructuredData = jsonData.data.map(item => ({
+      const restructuredData = jsonData.map(item => ({
       _id: item.id || null,
       temperature: item.temperature || 0,
       humidity: item.humidity || 0,
