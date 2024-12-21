@@ -4,7 +4,7 @@ import Slider from '@mui/material/Slider';
 import Button from '@mui/material/Button';
 
 import { handleSensorData_endpoint } from './Controllers/sensorDataController';
-import { handleStatus_endpoint } from './Controllers/StatusController';
+import { handleStatus_endpoint, GetStatus_endpoint } from './Controllers/StatusController';
 
 
 const App = () => {
@@ -65,6 +65,14 @@ const App = () => {
   };
 
   useEffect(() => {
+    const handleStatusData = async () => {
+      const response = await GetStatus_endpoint();
+      if (response) {
+        setLedStatus(response.leds_stats);
+        setServoPosition(response.servo);
+      }
+    }
+    handleStatusData();
     const interval = setInterval(() => {
       handleSensorData_endpoint(sensorData._id.length ? sensorData._id[sensorData._id.length - 1] : -1)
         .then((data) => {
@@ -82,6 +90,8 @@ const App = () => {
   
     return () => clearInterval(interval);
   }, [sensorData]);
+
+  
 
   const xAxisData = Array.from({ length: temperatureData.length }, (_, index) => index + 1);
 

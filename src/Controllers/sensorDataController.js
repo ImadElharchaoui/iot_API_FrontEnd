@@ -16,7 +16,7 @@ export const handleSensorData_endpoint = async (number) => {
     // Parse the JSON response
     const jsonData = await response.json();
     
-    console.log("json", jsonData)
+    
     // Assuming 'data' is an array within the JSON response
     if (!Array.isArray(jsonData)) {
       const restructuredData = {
